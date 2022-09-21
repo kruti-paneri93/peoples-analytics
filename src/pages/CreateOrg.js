@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-// import config from "../config/config";
+import config from "../config/config";
 
 // const API_URL = config.defaults.apibaseurl;
 
