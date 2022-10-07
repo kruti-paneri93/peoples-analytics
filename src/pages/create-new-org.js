@@ -46,6 +46,7 @@ function CreateNewOrg() {
   };
 
   const RegisterOrg = () => {
+    console.log(Phone)
     axios
       .post(
         "http://3.74.53.224:3002/create-organization",{

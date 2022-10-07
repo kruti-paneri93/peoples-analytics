@@ -6,104 +6,116 @@ import config from "../config/config";
 // const API_URL = config.defaults.apibaseurl;
 
 function CreateOrg() {
-  
   const initialValues = {
-    CompanyName: "",
-    Address: "",
-    Name: "",
-    Username: "",
-    Password: "",
-    Phone: "",
+    companyname: "",
+    address: "",
+    name: "",
+    username: "",
+    password: "",
+    phone: "",
   };
+  const [orgname, setOrgName] = useState({
+    companyname: "",
+  });
   const [formValues, setFormValues] = useState(initialValues);
   const [formErrors, setFormErrors] = useState({});
+  const [companyRepeat, setcompanyRepeat] = useState(false)
   const [isSubmit, setIsSubmit] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
+    setOrgName({ ...orgname, [name]: value });
   };
 
-  useEffect(() => {
-    console.log(formErrors);
-    if (Object.keys(formErrors).length === 0 && isSubmit) {
-      console.log(formValues);
-    }
-  }, [formErrors]);
-
+  // useEffect(() => {
+  //   console.log(formErrors);
+  //   if (Object.keys(formErrors).length === 0 && isSubmit) {
+  //     console.log(formValues);
+  //   }
+  // }, [formErrors]);
+  
   let headerConfig = {
-      method: 'POST',
-      // baseURL: API_URL,
+    method: "POST",
+    // baseURL: API_URL,
+    headers: {
+      "content-type": "application/json",
+    },
+
+    body: JSON.stringify(formValues),
+    redirect: "follow",
+  };
+  const checkComapny = (e) => {
+    // setFormErrors(validate(formValues));
+    fetch("http://3.74.53.224:3002/check-company", {
+      method: "POST",
       headers: {
         "content-type": "application/json",
       },
-      
-      body: JSON.stringify(formValues)
+      body: JSON.stringify(orgname),
+      redirect: "follow",
+    })
+      .then((response) => {
+        response.text()
+        return response
+      })
+      .then((result) => {
+        console.log(result);
+        if(result.status !== 200){
+          document.getElementById("myDiv").style.borderColor = "red";
+          setcompanyRepeat(true);
+          console.log(companyRepeat);
+          // if(companyRepeat !== true){
+          //   companyRepeat.companyname = "Company Already Exists"
+          // }
+        }
+        })
+      .catch((error) => console.log("error", error));
   };
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormErrors(validate(formValues));
     setIsSubmit(true);
-    fetch("http://3.74.53.224:3002/check-company", {
-      
-      headerConfig,
-  })
-      .then((res) => {
-        
-          if(res.status === 200) {
-            
-              return fetch("http://3.74.53.224:3002/create-organization", {
-                
-                headerConfig,
-              })
-              .then((res) => {
-                     return res.json();
-              })
-              .then((formValues) => console.log(formValues))
-              .catch((error) => console.log("ERRORInner"));
-          }else if (res.status >= 400){
-               console.log("SOMETHING WENT WRONG")
-            }
-    })
-      .then((formValues) => console.log(formValues))
-      .catch((error) => console.log("ERROROuter"));
+    fetch("http://3.74.53.224:3002/create-organization", headerConfig)
+      .then((response) => response.text())
+      .then((result) => console.log(result))
+      .catch((error) => console.log("error", error));
   };
-  
 
   const validate = (values) => {
     const errors = {};
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
     const numRegex = /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/;
-    if (!values.CompanyName) {
-      errors.CompanyName = "Company Name is required";
+    if (!values.companyname) {
+      errors.companyname = "Company Name is required";
     }
 
-    if (!values.Address) {
-      errors.Address = "Address is required";
+    if (!values.address) {
+      errors.address = "Address is required";
     }
 
-    if (!values.Name) {
-      errors.Name = "Name is required";
+    if (!values.name) {
+      errors.name = "Name is required";
     }
 
-    if (!values.Phone) {
-      errors.Phone = "Contact Number is required";
-    } else if (!numRegex.test(values.Phone)) {
-      errors.Phone = "Enter valid Number";
+    if (!values.phone) {
+      errors.phone = "Contact Number is required";
+    } else if (!numRegex.test(values.phone)) {
+      errors.phone = "Enter valid Number";
     }
 
-    if (!values.Username) {
-      errors.Username = "Email is required!";
-    } else if (!regex.test(values.Username)) {
-      errors.Username = "This is not a valid email format!";
+    if (!values.username) {
+      errors.username = "Email is required!";
+    } else if (!regex.test(values.username)) {
+      errors.username = "This is not a valid email format!";
     }
-    if (!values.Password) {
-      errors.Password = "Password is required";
-    } else if (values.Password.length < 4) {
-      errors.Password = "Password must be more than 4 characters";
-    } else if (values.Password.length > 10) {
-      errors.Password = "Password cannot exceed more than 10 characters";
+    if (!values.password) {
+      errors.password = "Password is required";
+    } else if (values.password.length < 4) {
+      errors.password = "Password must be more than 4 characters";
+    } else if (values.password.length > 10) {
+      errors.password = "Password cannot exceed more than 10 characters";
     }
     return errors;
   };
@@ -126,63 +138,65 @@ function CreateOrg() {
           </label>
           <Form.Group className="mb-3">
             <Form.Control
+            id="myDiv"
               type="text"
-              name="CompanyName"
+              name="companyname"
               placeholder="Company Name"
-              value={formValues.CompanyName}
+              value={formValues.companyname}
               onChange={handleChange}
+              onBlur={checkComapny}
             />
-            <p className="error-msg">{formErrors.CompanyName}</p>
+            <p className="error-msg">{formErrors.companyname}{companyRepeat.companyname}</p>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Control
               type="textarea"
-              name="Address"
+              name="address"
               placeholder="Address"
-              value={formValues.Address}
+              value={formValues.address}
               onChange={handleChange}
             />
-            <p className="error-msg">{formErrors.Address}</p>
+            <p className="error-msg">{formErrors.address}</p>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Control
               type="text"
-              name="Name"
+              name="name"
               placeholder="Name"
-              value={formValues.Name}
+              value={formValues.name}
               onChange={handleChange}
             />
-            <p className="error-msg">{formErrors.Name}</p>
+            <p className="error-msg">{formErrors.name}</p>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Control
               type="text"
-              name="Username"
+              name="username"
               placeholder="Username"
-              value={formValues.Username}
+              value={formValues.username}
               onChange={handleChange}
             />
-            <p className="error-msg">{formErrors.Username}</p>
+            <p className="error-msg">{formErrors.username}</p>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Control
               type="password"
-              name="Password"
+              name="password"
               placeholder="Password"
-              value={formValues.Password}
+              value={formValues.password}
               onChange={handleChange}
             />
-            <p className="error-msg">{formErrors.Password}</p>
+            <p className="error-msg">{formErrors.password}</p>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Control
               type="text"
-              name="Phone"
+              name="phone"
               placeholder="Contact Number"
-              value={formValues.Phone}
+              value={formValues.phone}
               onChange={handleChange}
             />
-            <p className="error-msg">{formErrors.Phone}</p>
+            <p className="error-msg">{formErrors.phone}</p>
           </Form.Group>
           <Button variant="primary" type="submit" onClick={handleSubmit}>
             Submit

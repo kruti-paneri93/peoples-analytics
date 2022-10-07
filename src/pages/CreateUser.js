@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 import axios from "axios";
 import config from "../config/config";
 
-const API_URL = config.defaults.apibaseurl;
+// const API_URL = config.defaults.apibaseurl;
 
 function CreateUser() {
   const initialValues = { Name: "", Username: "", Password: "", Phone: "" };
@@ -21,9 +21,9 @@ function CreateUser() {
     e.preventDefault();
     setFormErrors(validate(formValues));
     setIsSubmit(true);
-    fetch("/check-company", {
+    fetch("http://3.74.53.224:3002/create-user", {
       method: "POST",
-      baseURL: API_URL,
+      // baseURL: API_URL,
       headers: {
         "content-type": "application/json",
       },
@@ -47,13 +47,7 @@ function CreateUser() {
     const errors = {};
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
     const numRegex = /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/;
-    if (!values.CompanyName) {
-      errors.CompanyName = "Company Name is required";
-    }
-
-    if (!values.Address) {
-      errors.Address = "Address is required";
-    }
+    
 
     if (!values.Name) {
       errors.Name = "Name is required";
@@ -67,7 +61,7 @@ function CreateUser() {
 
     if (!values.Username) {
       errors.Username = "Email is required!";
-    } else if (!regex.test(values.email)) {
+    } else if (!regex.test(values.Username)) {
       errors.Username = "This is not a valid email format!";
     }
     if (!values.Password) {
